@@ -26,16 +26,22 @@ int pool_thread_create (thread_pool_t * thread_pool,
 			void          * future,
 			int             force) {
   int done = 0;
-  pthread_t* thread;
+  pthread_t thread;
 
   // Protect structure against concurrent accesses
   pthread_mutex_lock(&thread_pool->m);
   // Always create a thread as long as there are less then
   // core_pool_size threads created.
   if (thread_pool->size < thread_pool->core_pool_size) {
-    thread = (pthread_t*) malloc(sizeof(pthread_t));
-    pthread_create(thread, NULL, main, future);
+    pthread_create(&thread, NULL, main, future);
     thread_pool->size++;
+    done=1;
+  }
+
+  else if (thread_pool->size < thread_pool->max_pool_size && force) {
+    pthread_create(&thread, NULL, main, future);
+    thread_pool->size++;
+    done = 1;
   }
 
   // Do not protect the structure against concurrent accesses anymore
