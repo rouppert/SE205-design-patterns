@@ -9,6 +9,11 @@
 typedef struct {
   long                sem_impl;
   circular_buffer_t * buffer;
+  pthread_cond_t * not_empty;
+  pthread_cond_t * not_full;
+  pthread_mutex_t * m;
+  sem_t * empty_slots_sem;
+  sem_t * full_slots_sem;
 } protected_buffer_t;
 
 // Initialise the protected buffer structure above. sem_impl specifies
@@ -42,4 +47,6 @@ void * protected_buffer_poll(protected_buffer_t * b, struct timespec * abstime);
 // waits no longer than the given timeout. Return 0 if not
 // successful. Otherwise, return 1.
 int protected_buffer_offer(protected_buffer_t * b, void * d, struct timespec * abstime);
+
+
 #endif

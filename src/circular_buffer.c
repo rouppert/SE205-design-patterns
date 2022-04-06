@@ -21,12 +21,6 @@ void * circular_buffer_get(circular_buffer_t * b){
   return d;
 }
 
-void * circular_buffer_read(circular_buffer_t * b) {
-  if (b->size == 0) return NULL;
-  return b->buffer[b->first];
-}
-
-
 int circular_buffer_put(circular_buffer_t * b, void * d){
   if (b->size == b->max_size) return 0;
   b->last = (b->last + 1) % b->max_size;

@@ -11,10 +11,6 @@ circular_buffer_t * circular_buffer_init(int size);
 // Remove an element from circular buffer. When empty, return NULL.
 void * circular_buffer_get(circular_buffer_t * b);
 
-// Read (and do not remove) an element from circular buffer. When
-// empty, return NULL.
-void * circular_buffer_read(circular_buffer_t * b);
-
 // Append an element into circular buffer. When full, return 0.
 int circular_buffer_put(circular_buffer_t * b, void * d);
 

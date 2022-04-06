@@ -59,10 +59,16 @@ void thread_pool_shutdown(thread_pool_t * thread_pool) {
 // threads already allocated is large enough. If so, decrease threads
 // number and broadcast update. Protect against concurrent accesses.
 int pool_thread_remove (thread_pool_t * thread_pool) {
-  int done = 1;
+  int done = 0;
 
   // Protect against concurrent accesses and check whether the thread
   // can be deallocated.
+  pthread_mutex_lock(&thread_pool->m);
+  if(thread_pool->size > thread_pool->core_pool_size) {
+    done = 1;
+    thread_pool->size--;
+  }
+  pthread_mutex_unlock(&thread_pool->m);
   if (done)
     printf("%06ld [pool_thread] terminated\n", relative_clock());
   return done;
