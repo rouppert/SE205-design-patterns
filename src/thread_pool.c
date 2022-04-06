@@ -64,7 +64,13 @@ int pool_thread_remove (thread_pool_t * thread_pool) {
   // Protect against concurrent accesses and check whether the thread
   // can be deallocated.
   pthread_mutex_lock(&thread_pool->m);
-  if(thread_pool->size > thread_pool->core_pool_size) {
+  if(thread_pool->shutdown) {
+    thread_pool->size--;
+    done = 1;
+    if(thread_pool->size==0) pthread_cond_signal(&thread_pool->isempty);
+  }
+  
+  else if(thread_pool->size > thread_pool->core_pool_size) {
     done = 1;
     thread_pool->size--;
   }
@@ -77,6 +83,9 @@ int pool_thread_remove (thread_pool_t * thread_pool) {
 // Wait until thread number equals zero. Protect the thread pool
 // structure against concurrent accesses.
 void wait_thread_pool_empty (thread_pool_t * thread_pool) {
+  pthread_mutex_lock(&thread_pool->m);
+  while(thread_pool->size>0) pthread_cond_wait(&thread_pool->isempty, &thread_pool->m);
+  pthread_mutex_unlock(&thread_pool->m);
 }  
 
 int get_shutdown(thread_pool_t * thread_pool) {
